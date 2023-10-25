@@ -1,6 +1,7 @@
 # primer_app_flutter
 
-A new Flutter project.
+Aquí se encuentra el código de mi primer App en Flutter.
+Author: Jesus Ainza
 
 ## Getting Started
 
