@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:english_words/english_words.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -9,15 +11,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return ChangeNotifierProvider(
+      create: (context) => MyAppState(),
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        home: const MyHomePage(),
       ),
-      home: const MyHomePage(),
     );
   }
+}
+
+class MyAppState extends ChangeNotifier {
+  var current = WordPair.random();
 }
 
 class MyHomePage extends StatelessWidget {
@@ -25,11 +34,12 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
     return Scaffold(
       body: Column(
         children: [
-          Text("Idea aleatoria"),
-          Text("Aquí va la idea"),
+          Text("\n Idea aleatoria"),
+          Text(appState.current.asLowerCase),
         ],
       ),
     );
