@@ -27,9 +27,19 @@ class MyApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
+  var favlist = <WordPair>[];
 
   void getSiguiente() {
     current = WordPair.random();
+    notifyListeners();
+  }
+
+  void toggleFav() {
+    if (favlist.contains(current)) {
+      favlist.remove(current);
+    } else {
+      favlist.add(current);
+    }
     notifyListeners();
   }
 }
@@ -40,6 +50,14 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
+    var idea = appState.current;
+    IconData icon;
+    if (appState.favlist.contains(idea)) {
+      icon = Icons.favorite;
+    } else {
+      icon = Icons.favorite_border_outlined;
+    }
+
     return Scaffold(
       body: Center(
         child: Column(
@@ -49,12 +67,27 @@ class MyHomePage extends StatelessWidget {
             SizedBox(
               height: 15,
             ),
-            ElevatedButton(
-                onPressed: () {
-                  print("Botón presionado!");
-                  appState.getSiguiente();
-                },
-                child: Text("Siguiente"))
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {
+                    appState.toggleFav();
+                  },
+                  icon: Icon(icon),
+                  label: Text('Me gusta'),
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+                ElevatedButton(
+                    onPressed: () {
+                      print("Botón presionado!");
+                      appState.getSiguiente();
+                    },
+                    child: Text("Siguiente")),
+              ],
+            )
           ],
         ),
       ),
