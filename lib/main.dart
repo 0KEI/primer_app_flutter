@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => MyAppState(),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
@@ -49,47 +50,30 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var idea = appState.current;
-    IconData icon;
-    if (appState.favlist.contains(idea)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border_outlined;
-    }
-
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            BigCard(idea: appState.current),
-            SizedBox(
-              height: 15,
-            ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    appState.toggleFav();
-                  },
-                  icon: Icon(icon),
-                  label: Text('Me gusta'),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                ElevatedButton(
-                    onPressed: () {
-                      print("Botón presionado!");
-                      appState.getSiguiente();
-                    },
-                    child: Text("Siguiente")),
+      body: Row(
+        children: [
+          SafeArea(
+            child: NavigationRail(
+              extended: false,
+              destinations: [
+                NavigationRailDestination(
+                    icon: Icon(Icons.home), label: Text('Inicio')),
+                NavigationRailDestination(
+                    icon: Icon(Icons.favorite), label: Text('Favoritos')),
               ],
-            )
-          ],
-        ),
+              selectedIndex: 0,
+              onDestinationSelected: (value) {
+                print("Selección: $value");
+              },
+            ),
+          ),
+          Expanded(
+              child: Container(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            child: GeneratorPage(),
+          )),
+        ],
       ),
     );
   }
@@ -116,6 +100,55 @@ class BigCard extends StatelessWidget {
           style: TextStyle,
           semanticsLabel: "${idea.first} ${idea.second}",
         ),
+      ),
+    );
+  }
+}
+
+class GeneratorPage extends StatelessWidget {
+  const GeneratorPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+    var idea = appState.current;
+    IconData icon;
+    if (appState.favlist.contains(idea)) {
+      icon = Icons.favorite;
+    } else {
+      icon = Icons.favorite_border_outlined;
+    }
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          BigCard(idea: appState.current),
+          SizedBox(
+            height: 15,
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () {
+                  appState.toggleFav();
+                },
+                icon: Icon(icon),
+                label: Text('Me gusta'),
+              ),
+              SizedBox(
+                width: 20,
+              ),
+              ElevatedButton(
+                  onPressed: () {
+                    print("Botón presionado!");
+                    appState.getSiguiente();
+                  },
+                  child: Text("Siguiente")),
+            ],
+          )
+        ],
       ),
     );
   }
