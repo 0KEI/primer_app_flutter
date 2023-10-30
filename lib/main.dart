@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: const MyHomePage(),
+        home: MyHomePage(),
       ),
     );
   }
@@ -45,9 +45,13 @@ class MyAppState extends ChangeNotifier {
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key});
+class MyHomePage extends StatefulWidget {
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
 
+class _MyHomePageState extends State<MyHomePage> {
+  var selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,8 +66,11 @@ class MyHomePage extends StatelessWidget {
                 NavigationRailDestination(
                     icon: Icon(Icons.favorite), label: Text('Favoritos')),
               ],
-              selectedIndex: 0,
+              selectedIndex: selectedIndex,
               onDestinationSelected: (value) {
+                setState(() {
+                  selectedIndex = value;
+                });
                 print("Selección: $value");
               },
             ),
