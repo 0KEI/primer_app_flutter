@@ -30,17 +30,24 @@ class MyApp extends StatelessWidget {
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
   var favlist = <WordPair>[];
+  var historial = <WordPair>[];
+
+  GlobalKey? historialListKey;
 
   void getSiguiente() {
+    historial.insert(0, current);
+    var animatedList = historialListKey?.currentState as AnimatedListState?;
+    animatedList?.insertItem(0);
     current = WordPair.random();
     notifyListeners();
   }
 
-  void toggleFav() {
-    if (favlist.contains(current)) {
-      favlist.remove(current);
+  void toggleFav({WordPair? idea}) {
+    idea = idea ?? current;
+    if (favlist.contains(idea)) {
+      favlist.remove(idea);
     } else {
-      favlist.add(current);
+      favlist.add(idea);
     }
     notifyListeners();
   }
@@ -147,6 +154,13 @@ class GeneratorPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Expanded(
+            flex: 3,
+            child: HistorialListView(),
+          ),
+          SizedBox(
+            height: 20,
+          ),
           BigCard(idea: appState.current),
           SizedBox(
             height: 15,
@@ -171,6 +185,9 @@ class GeneratorPage extends StatelessWidget {
                   },
                   child: Text("Siguiente")),
             ],
+          ),
+          Spacer(
+            flex: 2,
           )
         ],
       ),
@@ -195,12 +212,68 @@ class FavPage extends StatelessWidget {
           padding: const EdgeInsets.all(20.0),
           child: Text('Se han elegido ${appState.favlist.length} favoritos'),
         ),
-        for (var name in appState.favlist)
+        for (var idea in appState.favlist)
           ListTile(
             leading: Icon(Icons.favorite),
-            title: Text(name.asLowerCase),
+            title: Text(idea.asLowerCase),
           )
       ],
+    );
+  }
+}
+
+class HistorialListView extends StatefulWidget {
+  const HistorialListView({Key? key}) : super(key: key);
+
+  @override
+  State<HistorialListView> createState() => _HistorialListViewState();
+}
+
+class _HistorialListViewState extends State<HistorialListView> {
+  final _key = GlobalKey();
+
+  static const Gradient _maskinGradient = LinearGradient(
+    colors: [Colors.transparent, Colors.black],
+    stops: [0.0, 0.5],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+    appState.historialListKey = _key;
+    return ShaderMask(
+      shaderCallback: (bounds) => _maskinGradient.createShader(bounds),
+      blendMode: BlendMode.dstIn,
+      child: AnimatedList(
+        key: _key,
+        reverse: true,
+        padding: EdgeInsets.only(top: 100.0),
+        initialItemCount: appState.historial.length,
+        itemBuilder: (context, index, animation) {
+          final idea = appState.historial[index];
+          return SizeTransition(
+            sizeFactor: animation,
+            child: Center(
+              child: TextButton.icon(
+                  onPressed: () {
+                    appState.toggleFav(idea: idea);
+                  },
+                  icon: appState.favlist.contains(idea)
+                      ? Icon(
+                          Icons.favorite,
+                          size: 12,
+                        )
+                      : SizedBox(),
+                  label: Text(
+                    idea.asLowerCase,
+                    semanticsLabel: idea.asPascalCase,
+                  )),
+            ),
+          );
+        },
+      ),
     );
   }
 }
