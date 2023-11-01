@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -61,42 +62,44 @@ class _MyHomePageState extends State<MyHomePage> {
         page = GeneratorPage();
         break;
       case 1:
-        page = Placeholder();
+        page = FavPage();
         break;
       default:
         throw UnimplementedError(
             'No hay Widget disponible para: $selectedIndex');
     }
 
-    return Scaffold(
-      body: Row(
-        children: [
-          SafeArea(
-            child: NavigationRail(
-              extended: false,
-              destinations: [
-                NavigationRailDestination(
-                    icon: Icon(Icons.home), label: Text('Inicio')),
-                NavigationRailDestination(
-                    icon: Icon(Icons.favorite), label: Text('Favoritos')),
-              ],
-              selectedIndex: selectedIndex,
-              onDestinationSelected: (value) {
-                setState(() {
-                  selectedIndex = value;
-                });
-                print("Selección: $value");
-              },
+    return LayoutBuilder(builder: (context, constraints) {
+      return Scaffold(
+        body: Row(
+          children: [
+            SafeArea(
+              child: NavigationRail(
+                extended: constraints.maxWidth >= 600,
+                destinations: [
+                  NavigationRailDestination(
+                      icon: Icon(Icons.home), label: Text('Inicio')),
+                  NavigationRailDestination(
+                      icon: Icon(Icons.favorite), label: Text('Favoritos')),
+                ],
+                selectedIndex: selectedIndex,
+                onDestinationSelected: (value) {
+                  setState(() {
+                    selectedIndex = value;
+                  });
+                  print("Selección: $value");
+                },
+              ),
             ),
-          ),
-          Expanded(
-              child: Container(
-            color: Theme.of(context).colorScheme.primaryContainer,
-            child: page,
-          )),
-        ],
-      ),
-    );
+            Expanded(
+                child: Container(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              child: page,
+            )),
+          ],
+        ),
+      );
+    });
   }
 }
 
@@ -171,6 +174,33 @@ class GeneratorPage extends StatelessWidget {
           )
         ],
       ),
+    );
+  }
+}
+
+class FavPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+
+    if (appState.favlist.isEmpty) {
+      return Center(
+        child: Text("Aún no hay favoritos en la lista"),
+      );
+    } else {}
+
+    return ListView(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Text('Se han elegido ${appState.favlist.length} favoritos'),
+        ),
+        for (var name in appState.favlist)
+          ListTile(
+            leading: Icon(Icons.favorite),
+            title: Text(name.asLowerCase),
+          )
+      ],
     );
   }
 }
